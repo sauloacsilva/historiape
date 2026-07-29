@@ -1,0 +1,6 @@
+{
+  "name": "História de Pernambuco - Atlas Interativo",
+  "description": "Plataforma educacional interativa com mapa navegável, linha do tempo e artigos detalhados sobre a história de Pernambuco.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
