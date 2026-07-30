@@ -61,6 +61,7 @@ export interface Article {
   regionIds: string[];
   keywords: string[];
   heroImageDescription: string;
+  heroImageUrl?: string;
   
   // Required Structure
   contextoHistorico: {

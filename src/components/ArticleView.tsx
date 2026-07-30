@@ -88,6 +88,14 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
         </div>
       </div>
 
+      {article.heroImageUrl && (
+        <img
+          src={article.heroImageUrl}
+          alt={article.heroImageDescription}
+          className="block w-full h-auto max-h-[560px] object-cover"
+        />
+      )}
+
       {/* SECTION 1: Contexto Histórico & Relações de Progressividade */}
       <div className="bg-[#FDFBF7] p-8 rounded-3xl border border-[#E2DBD0] space-y-6 shadow-sm">
         <div className="flex items-center gap-2 pb-4 border-b border-[#EFEADF]">
@@ -180,6 +188,13 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
               key={idx}
               className="p-5 rounded-2xl bg-white border border-[#E2DBD0] shadow-2xs hover:border-[#8B5E3C] transition-all"
             >
+              {pers.imageUrl && (
+                <img
+                  src={pers.imageUrl}
+                  alt={pers.name}
+                  className="block w-full h-auto max-h-80 object-cover mb-4"
+                />
+              )}
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
                   <h3 className="text-base font-bold text-[#2C3531]">{pers.name}</h3>
