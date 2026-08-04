@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Map, Clock, BookOpen, Hash, Award, Search, FileText, X, ChevronRight, MapPin, Tag, AlertCircle } from 'lucide-react';
+import { Map, Clock, BookOpen, Hash, Award, Search, FileText, X, ChevronRight, MapPin, Tag, AlertCircle, Menu, SlidersHorizontal } from 'lucide-react';
 import { DimensionType, Region, Article, TimelineEvent, Keyword } from '../types';
 import { DIMENSIONS } from '../data/dimensionsData';
 import { TIMELINE_EVENTS } from '../data/timelineEventsData';
@@ -35,6 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectKeyword,
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on click outside
@@ -326,11 +327,68 @@ export const Header: React.FC<HeaderProps> = ({
             <FileText className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Guia de Estudos</span>
           </button>
+
+          {/* Collapsible Mobile Menu Trigger (Filters & Actions) */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="flex items-center justify-center p-1.5 rounded-full border border-[#E2DBD0] bg-[#F3EFE6] text-[#5C5549] hover:bg-[#EFEADF] transition-all cursor-pointer lg:hidden shadow-2xs"
+            title="Menu de Filtros"
+            aria-label="Toggle Filters Menu"
+          >
+            <SlidersHorizontal className="w-4 h-4 text-[#8B5E3C]" />
+          </button>
         </div>
       </div>
 
-      {/* Main Navigation Tabs */}
-      <div className="max-w-7xl mx-auto px-4 border-t border-[#EFEADF] flex items-center justify-between overflow-x-auto no-scrollbar gap-1 py-1.5">
+      {/* Mobile Collapsible Panel for Dimension Filters */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden px-4 pb-3 pt-2 border-t border-[#EFEADF] bg-[#FDFBF7] animate-fade-in space-y-2">
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-[#8C857B] font-bold block mb-1">
+              Filtrar por Dimensão:
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => {
+                  setSelectedDimension('all');
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  selectedDimension === 'all'
+                    ? 'bg-[#2C3531] text-white font-bold'
+                    : 'bg-[#F3EFE6] text-[#5C5549] hover:bg-[#E2DBD0]'
+                }`}
+              >
+                Todas as Dimensões
+              </button>
+
+              {(Object.keys(DIMENSIONS) as DimensionType[]).map((dimKey) => {
+                const dim = DIMENSIONS[dimKey];
+                const isSelected = selectedDimension === dimKey;
+                return (
+                  <button
+                    key={dimKey}
+                    onClick={() => {
+                      setSelectedDimension(dimKey);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    style={{
+                      backgroundColor: isSelected ? dim.color : dim.pastelBg,
+                      color: isSelected ? '#FFFFFF' : dim.pastelText,
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs hover:opacity-90"
+                  >
+                    {dim.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Main Navigation Tabs */}
+      <div className="hidden lg:flex max-w-7xl mx-auto px-4 border-t border-[#EFEADF] items-center justify-between gap-1 py-1.5">
         <div className="flex items-center gap-1">
           <button
             onClick={() => setActiveTab('map')}
@@ -341,7 +399,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Map className="w-4 h-4" />
-            <span>Mapa em Tela Cheia</span>
+            <span>Mapa Interativo</span>
           </button>
 
           <button
@@ -353,7 +411,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Clock className="w-4 h-4" />
-            <span>Linha do Tempo (30 Eventos)</span>
+            <span>Linha do Tempo</span>
           </button>
 
           <button
@@ -365,7 +423,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>Artigos Temáticos</span>
+            <span>Artigos</span>
           </button>
 
           <button
@@ -377,7 +435,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Hash className="w-4 h-4" />
-            <span>Hipertextualidade (Palavras-Chave)</span>
+            <span>Palavras-Chave</span>
           </button>
 
           <button
@@ -389,12 +447,12 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Award className="w-4 h-4 text-[#F59E0B]" />
-            <span>Desafio do Estudante</span>
+            <span>Desafio/Quiz</span>
           </button>
         </div>
 
         {/* Dimension Filter Quick Chips */}
-        <div className="hidden lg:flex items-center gap-1 pl-4 border-l border-[#EFEADF]">
+        <div className="flex items-center gap-1 pl-4 border-l border-[#EFEADF]">
           <span className="text-[10px] uppercase tracking-wider text-[#8C857B] font-semibold mr-1">
             Dimensão:
           </span>
@@ -427,6 +485,59 @@ export const Header: React.FC<HeaderProps> = ({
             );
           })}
         </div>
+      </div>
+
+      {/* Bottom Navigation for Mobile Devices */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#E8E1D7] flex lg:hidden items-center justify-around py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+        <button
+          onClick={() => setActiveTab('map')}
+          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
+            activeTab === 'map' ? 'text-[#8B5E3C]' : 'text-[#8C857B] hover:text-[#2C3531]'
+          }`}
+        >
+          <Map className="w-5 h-5" />
+          <span>Mapa</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('timeline')}
+          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
+            activeTab === 'timeline' ? 'text-[#8B5E3C]' : 'text-[#8C857B] hover:text-[#2C3531]'
+          }`}
+        >
+          <Clock className="w-5 h-5" />
+          <span>Linha</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('articles')}
+          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
+            activeTab === 'articles' ? 'text-[#8B5E3C]' : 'text-[#8C857B] hover:text-[#2C3531]'
+          }`}
+        >
+          <BookOpen className="w-5 h-5" />
+          <span>Artigos</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('keywords')}
+          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
+            activeTab === 'keywords' ? 'text-[#8B5E3C]' : 'text-[#8C857B] hover:text-[#2C3531]'
+          }`}
+        >
+          <Hash className="w-5 h-5" />
+          <span>Termos</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('quiz')}
+          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
+            activeTab === 'quiz' ? 'text-[#2D5A27]' : 'text-[#8C857B] hover:text-[#2C3531]'
+          }`}
+        >
+          <Award className={`w-5 h-5 ${activeTab === 'quiz' ? 'text-[#F59E0B]' : ''}`} />
+          <span>Desafio</span>
+        </button>
       </div>
     </header>
   );

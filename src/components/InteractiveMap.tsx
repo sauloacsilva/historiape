@@ -3,7 +3,7 @@ import { REGIONS_DATA } from '../data/regionsData';
 import { TIMELINE_EVENTS } from '../data/timelineEventsData';
 import { Region, TimelineEvent, DimensionType } from '../types';
 import { DIMENSIONS } from '../data/dimensionsData';
-import { Compass, MoveRight, ZoomIn, ZoomOut, MapPin, Sparkles, Navigation, Layers } from 'lucide-react';
+import { Compass, MoveRight, ZoomIn, ZoomOut, MapPin, Sparkles, Navigation, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface InteractiveMapProps {
   onSelectRegion: (region: Region) => void;
@@ -44,6 +44,16 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     const targetScrollLeft = (container.scrollWidth * xPosPercent) / 100 - container.clientWidth / 2;
     container.scrollTo({
       left: Math.max(0, targetScrollLeft),
+      behavior: 'smooth',
+    });
+  };
+
+  const handleScrollStep = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+    const scrollAmount = 400 * zoomLevel;
+    container.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
     });
   };
@@ -126,16 +136,19 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           }}
         >
           {/* Background Topographic / River Lines Vector Overlay */}
-          <svg className="absolute inset-0 w-full h-full opacity-25 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          <svg className="absolute inset-0 w-full h-full opacity-45 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
             {/* Rio São Francisco and Capibaribe Water Pathways */}
             <path
               d="M 100,520 Q 400,480 800,500 T 1400,460 T 2000,510 T 2600,480"
               fill="none"
               stroke="#0284C7"
-              strokeWidth="12"
-              strokeDasharray="6,6"
+              strokeWidth="20"
+              strokeDasharray="10,8"
+              strokeLinecap="round"
+              className="animate-pulse"
+              style={{ filter: 'drop-shadow(0px 0px 8px rgba(2, 132, 199, 0.6))' }}
             />
-            <text x="300" y="545" fill="#0284C7" fontSize="13" fontWeight="bold" fontFamily="sans-serif">
+            <text x="320" y="555" fill="#0369A1" fontSize="15" fontWeight="900" letterSpacing="0.05em" fontFamily="sans-serif">
               RIO SÃO FRANCISCO (O VELHO CHICO)
             </text>
             <text x="2200" y="470" fill="#0284C7" fontSize="13" fontWeight="bold" fontFamily="sans-serif">
@@ -241,8 +254,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     </div>
                   </div>
 
-                  {/* Interactive Timeline Event Pins attached to this region */}
-                  <div className="mt-6 space-y-2">
+                  {/* Interactive Timeline Event Pins attached to this region - Collapsible */}
+                  <div className={`mt-4 space-y-2 overflow-hidden transition-all duration-300 ${
+                    isSelected ? 'max-h-[30rem] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+                  }`}>
                     <p className="text-[11px] font-bold text-[#8C857B] uppercase tracking-wider flex items-center gap-1 px-1">
                       <Navigation className="w-3 h-3 text-[#8B5E3C]" />
                       <span>Eventos Relevantes ({regionEvents.length}):</span>
@@ -291,6 +306,23 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Floating Navigation Controls (Left & Right Arrows) */}
+      <button
+        onClick={() => handleScrollStep('left')}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-[#FDFBF7]/90 hover:bg-[#FDFBF7] text-[#8B5E3C] hover:text-[#704B2F] border border-[#E2DBD0] hover:scale-105 flex items-center justify-center shadow-md transition-all cursor-pointer backdrop-blur-xs"
+        title="Rolar para esquerda"
+      >
+        <ChevronLeft className="w-6 h-6" />
+      </button>
+
+      <button
+        onClick={() => handleScrollStep('right')}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-[#FDFBF7]/90 hover:bg-[#FDFBF7] text-[#8B5E3C] hover:text-[#704B2F] border border-[#E2DBD0] hover:scale-105 flex items-center justify-center shadow-md transition-all cursor-pointer backdrop-blur-xs"
+        title="Rolar para direita"
+      >
+        <ChevronRight className="w-6 h-6" />
+      </button>
     </div>
   );
 };
