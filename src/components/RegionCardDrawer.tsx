@@ -3,7 +3,17 @@ import { Region, TimelineEvent, Article } from '../types';
 import { TIMELINE_EVENTS } from '../data/timelineEventsData';
 import { ARTICLES_DATA } from '../data/articlesData';
 import { DIMENSIONS } from '../data/dimensionsData';
-import { X, MapPin, Building2, Users, Landmark, Compass, BookOpen, ArrowRight, Sparkles } from 'lucide-react';
+import { X, MapPin, Building2, Users, Landmark, Compass, BookOpen, ArrowRight, Sparkles, Map } from 'lucide-react';
+
+// Mapeamento de region ID → arquivo de imagem em /src/img/
+const REGION_MAP_IMAGES: Record<string, string> = {
+  'sertao-sao-francisco': new URL('../img/saofrancisco.png', import.meta.url).href,
+  'sertao-central-pajeu': new URL('../img/sertao.png', import.meta.url).href,
+  'agreste': new URL('../img/agreste.png', import.meta.url).href,
+  'zona-da-mata': new URL('../img/mata.png', import.meta.url).href,
+  'rmr': new URL('../img/metro.png', import.meta.url).href,
+  'noronha': new URL('../img/noronha.png', import.meta.url).href,
+};
 
 interface RegionCardDrawerProps {
   region: Region | null;
@@ -26,8 +36,45 @@ export const RegionCardDrawer: React.FC<RegionCardDrawerProps> = ({
   // Articles related to this region
   const relatedArticles = ARTICLES_DATA.filter(a => a.regionIds.includes(region.id));
 
+  const mapImageUrl = REGION_MAP_IMAGES[region.id];
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex justify-end transition-opacity animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex justify-end transition-opacity animate-fade-in">
+      {/* Map panel — visible on md+ screens, fills the left side of the overlay */}
+      {mapImageUrl && (
+        <div className="hidden md:flex flex-col items-center justify-center flex-1 px-8 py-10 pointer-events-none">
+          <div
+            className="relative w-full max-w-lg bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl shadow-2xl overflow-hidden pointer-events-auto"
+            style={{ maxHeight: '80vh' }}
+          >
+            {/* Map header badge */}
+            <div
+              style={{ backgroundColor: region.accentColor }}
+              className="px-4 py-3 flex items-center gap-2"
+            >
+              <Map className="w-4 h-4 text-white shrink-0" />
+              <span className="text-xs font-bold text-white uppercase tracking-wider">
+                Mapa Regional — {region.name}
+              </span>
+            </div>
+
+            {/* Map image */}
+            <img
+              src={mapImageUrl}
+              alt={`Mapa da região ${region.name} no estado de Pernambuco`}
+              className="w-full object-contain"
+              style={{ maxHeight: 'calc(80vh - 44px)' }}
+            />
+          </div>
+
+          {/* Caption */}
+          <p className="mt-3 text-white/70 text-xs font-medium text-center">
+            Mapa da região <strong className="text-white">{region.name}</strong> no estado de Pernambuco
+          </p>
+        </div>
+      )}
+
+      {/* Drawer panel */}
       <div className="w-full max-w-2xl bg-[#FDFBF7] h-full shadow-2xl flex flex-col overflow-hidden border-l border-[#E2DBD0] animate-slide-left">
         {/* Header */}
         <div
@@ -54,10 +101,23 @@ export const RegionCardDrawer: React.FC<RegionCardDrawerProps> = ({
           <p className="text-sm font-medium text-[#4A5568] italic">
             "{region.subTitle}"
           </p>
+
+
         </div>
+        {/* Map image — only shown inside the drawer on mobile (on desktop it appears in the overlay panel) */}
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {mapImageUrl && (
+            <div className="md:hidden -mt-2 -mx-6 mb-4 overflow-hidden">
+              <img
+                src={mapImageUrl}
+                alt={`Mapa da região ${region.name}`}
+                className="w-full object-cover"
+                style={{ maxHeight: '200px', objectPosition: 'center' }}
+              />
+            </div>
+          )}
           {/* Cities & Location */}
           <div className="bg-[#F3EFE6] p-4 rounded-2xl border border-[#E2DBD0]">
             <h3 className="text-xs font-bold text-[#8C857B] uppercase tracking-wider mb-2 flex items-center gap-1.5">

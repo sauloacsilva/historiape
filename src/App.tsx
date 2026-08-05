@@ -65,7 +65,7 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#2C3531] flex flex-col font-sans selection:bg-[#FEF3C7] selection:text-[#92400E]">
+    <div className="min-h-screen bg-[#FDFBF7] text-[#2C3531] flex flex-col font-sans selection:bg-[#FEF3C7] selection:text-[#92400E] pb-16 lg:pb-0">
       {/* Top Application Header */}
       <Header
         activeTab={activeTab}
@@ -92,6 +92,7 @@ export default function App() {
         {/* VIEW 1: Full-screen Interactive Horizontal Scroll Map */}
         {activeTab === 'map' && (
           <InteractiveMap
+            selectedRegion={selectedRegion}
             onSelectRegion={(region) => setSelectedRegion(region)}
             onSelectEvent={(evt) => setSelectedEvent(evt)}
             selectedDimension={selectedDimension}

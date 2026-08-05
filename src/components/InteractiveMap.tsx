@@ -6,13 +6,15 @@ import { DIMENSIONS } from '../data/dimensionsData';
 import { Compass, MoveRight, ZoomIn, ZoomOut, MapPin, Sparkles, Navigation, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface InteractiveMapProps {
-  onSelectRegion: (region: Region) => void;
+  selectedRegion: Region | null;
+  onSelectRegion: (region: Region | null) => void;
   onSelectEvent: (event: TimelineEvent) => void;
   selectedDimension: DimensionType | 'all';
   searchQuery?: string;
 }
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
+  selectedRegion,
   onSelectRegion,
   onSelectEvent,
   selectedDimension,
@@ -20,7 +22,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [activeRegionId, setActiveRegionId] = useState<string | null>(null);
+  const [isRegionMenuOpen, setIsRegionMenuOpen] = useState(false);
+  // Separate from drawer selection — controls the in-map collapsible "Eventos Relevantes"
+  const [expandedRegionId, setExpandedRegionId] = useState<string | null>(null);
+
+  const activeRegionId = selectedRegion?.id || null;
 
   const query = searchQuery.trim().toLowerCase();
 
@@ -48,6 +54,31 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     });
   };
 
+  React.useEffect(() => {
+    if (selectedRegion) {
+      // Auto-scroll to region and expand its events when selected externally (e.g. search)
+      const timer = setTimeout(() => {
+        handleScrollToRegion(selectedRegion.xPosition);
+      }, 100);
+      setExpandedRegionId(selectedRegion.id);
+      return () => clearTimeout(timer);
+    } else {
+      setExpandedRegionId(null);
+    }
+  }, [selectedRegion]);
+
+  const handleRegionClick = (region: Region) => {
+    if (expandedRegionId === region.id) {
+      // Clicking same region collapses it and deselects drawer
+      setExpandedRegionId(null);
+      onSelectRegion(null);
+    } else {
+      // Expand this region's events and open drawer
+      setExpandedRegionId(region.id);
+      onSelectRegion(region);
+    }
+  };
+
   const handleScrollStep = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
@@ -69,28 +100,27 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     <div className="relative w-full h-[calc(100vh-100px)] min-h-[550px] bg-[#F7F4ED] overflow-hidden flex flex-col select-none">
       {/* Top Map Control Bar */}
       <div className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-        {/* Navigation jump pills */}
-        <div className="flex items-center gap-1.5 bg-[#FDFBF7]/90 backdrop-blur-md p-1.5 rounded-2xl border border-[#E2DBD0] shadow-md pointer-events-auto overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1 text-[11px] font-semibold text-[#8C857B] px-2 border-r border-[#E2DBD0]">
-            <Compass className="w-3.5 h-3.5 text-[#8B5E3C]" />
-            <span>Navegar:</span>
+        {/* Navigation jump menu — desktop/tablet only in top bar */}
+        <div className="hidden md:flex items-center gap-1.5 pointer-events-auto">
+          <div className="flex items-center gap-1.5 bg-[#FDFBF7]/90 backdrop-blur-md p-1.5 rounded-2xl border border-[#E2DBD0] shadow-md">
+            <div className="flex items-center gap-1 text-[11px] font-semibold text-[#8C857B] px-2 border-r border-[#E2DBD0]">
+              <Compass className="w-3.5 h-3.5 text-[#8B5E3C]" />
+              <span>Navegar:</span>
+            </div>
+            {REGIONS_DATA.map((region) => (
+              <button
+                key={region.id}
+                onClick={() => handleRegionClick(region)}
+                style={{
+                  backgroundColor: activeRegionId === region.id ? region.accentColor : '#F3EFE6',
+                  color: activeRegionId === region.id ? '#FFFFFF' : '#4A5568',
+                }}
+                className="px-3 py-1 rounded-xl text-xs font-semibold transition-all hover:scale-105 cursor-pointer whitespace-nowrap shadow-2xs"
+              >
+                {region.shortCode}
+              </button>
+            ))}
           </div>
-          {REGIONS_DATA.map((region) => (
-            <button
-              key={region.id}
-              onClick={() => {
-                setActiveRegionId(region.id);
-                handleScrollToRegion(region.xPosition);
-              }}
-              style={{
-                backgroundColor: activeRegionId === region.id ? region.accentColor : '#F3EFE6',
-                color: activeRegionId === region.id ? '#FFFFFF' : '#4A5568',
-              }}
-              className="px-3 py-1 rounded-xl text-xs font-semibold transition-all hover:scale-105 cursor-pointer whitespace-nowrap shadow-2xs"
-            >
-              {region.shortCode}
-            </button>
-          ))}
         </div>
 
         {/* Zoom Controls & Scroll Indicator */}
@@ -136,20 +166,36 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           }}
         >
           {/* Background Topographic / River Lines Vector Overlay */}
-          <svg className="absolute inset-0 w-full h-full opacity-45 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-            {/* Rio São Francisco and Capibaribe Water Pathways */}
+          <svg className="absolute inset-0 w-full h-full opacity-80 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="riverGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#0284C7" />
+                <stop offset="50%" stopColor="#0369A1" />
+                <stop offset="100%" stopColor="#0284C7" />
+              </linearGradient>
+            </defs>
+            {/* Glowing background path for Rio São Francisco */}
             <path
               d="M 100,520 Q 400,480 800,500 T 1400,460 T 2000,510 T 2600,480"
               fill="none"
-              stroke="#0284C7"
-              strokeWidth="20"
-              strokeDasharray="10,8"
+              stroke="#BAE6FD"
+              strokeWidth="38"
+              strokeLinecap="round"
+              className="opacity-40"
+            />
+            {/* Main Rio São Francisco and Capibaribe Water Pathways */}
+            <path
+              d="M 100,520 Q 400,480 800,500 T 1400,460 T 2000,510 T 2600,480"
+              fill="none"
+              stroke="url(#riverGrad)"
+              strokeWidth="28"
+              strokeDasharray="14,10"
               strokeLinecap="round"
               className="animate-pulse"
-              style={{ filter: 'drop-shadow(0px 0px 8px rgba(2, 132, 199, 0.6))' }}
+              style={{ filter: 'drop-shadow(0px 0px 8px rgba(2, 132, 199, 0.75))' }}
             />
-            <text x="320" y="555" fill="#0369A1" fontSize="15" fontWeight="900" letterSpacing="0.05em" fontFamily="sans-serif">
-              RIO SÃO FRANCISCO (O VELHO CHICO)
+            <text x="320" y="562" fill="#014A75" fontSize="18" fontWeight="900" letterSpacing="0.1em" fontFamily="sans-serif">
+              🌊 RIO SÃO FRANCISCO (O VELHO CHICO)
             </text>
             <text x="2200" y="470" fill="#0284C7" fontSize="13" fontWeight="bold" fontFamily="sans-serif">
               RIO CAPIBARIBE & ATLÂNTICO
@@ -182,17 +228,13 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 >
                   {/* Region Card Container */}
                   <div
-                    onClick={() => {
-                      setActiveRegionId(region.id);
-                      onSelectRegion(region);
-                    }}
+                    onClick={() => handleRegionClick(region)}
                     style={{
                       backgroundColor: region.colorPastel,
                       borderColor: isSelected ? region.accentColor : '#E2DBD0',
                     }}
-                    className={`p-6 rounded-3xl border-2 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden transform hover:-translate-y-2 ${
-                      isSelected ? 'ring-4 ring-[#8B5E3C]/30 scale-102' : ''
-                    }`}
+                    className={`p-6 rounded-3xl border-2 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden transform hover:-translate-y-2 ${isSelected ? 'ring-4 ring-[#8B5E3C]/30 scale-102' : ''
+                      }`}
                   >
                     {/* Header Banner inside Card */}
                     <div className="flex items-start justify-between gap-2 mb-3">
@@ -255,9 +297,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   </div>
 
                   {/* Interactive Timeline Event Pins attached to this region - Collapsible */}
-                  <div className={`mt-4 space-y-2 overflow-hidden transition-all duration-300 ${
-                    isSelected ? 'max-h-[30rem] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-                  }`}>
+                  <div className={`mt-4 space-y-2 overflow-hidden transition-all duration-500 ${expandedRegionId === region.id ? 'max-h-[30rem] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+                    }`}>
                     <p className="text-[11px] font-bold text-[#8C857B] uppercase tracking-wider flex items-center gap-1 px-1">
                       <Navigation className="w-3 h-3 text-[#8B5E3C]" />
                       <span>Eventos Relevantes ({regionEvents.length}):</span>
@@ -307,10 +348,32 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         </div>
       </div>
 
-      {/* Floating Navigation Controls (Left & Right Arrows) */}
+      {/* Mobile Bottom Region Navigation Bar — below the map scroll area, above the global app nav */}
+      <div className="md:hidden absolute bottom-0 left-0 right-0 z-30 bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#E2DBD0] shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center gap-0 overflow-x-auto no-scrollbar px-2 py-2">
+          <div className="flex items-center gap-1 text-[10px] font-bold text-[#8C857B] px-2 border-r border-[#E2DBD0] mr-1 shrink-0">
+            <Compass className="w-3 h-3 text-[#8B5E3C]" />
+          </div>
+          {REGIONS_DATA.map((region) => (
+            <button
+              key={region.id}
+              onClick={() => handleRegionClick(region)}
+              style={{
+                backgroundColor: activeRegionId === region.id ? region.accentColor : 'transparent',
+                color: activeRegionId === region.id ? '#FFFFFF' : '#5C5549',
+              }}
+              className="px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer whitespace-nowrap shrink-0"
+            >
+              {region.shortCode}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Floating Navigation Controls (Left & Right Arrows) — hidden on mobile, chevrons replaced by bottom nav */}
       <button
         onClick={() => handleScrollStep('left')}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-[#FDFBF7]/90 hover:bg-[#FDFBF7] text-[#8B5E3C] hover:text-[#704B2F] border border-[#E2DBD0] hover:scale-105 flex items-center justify-center shadow-md transition-all cursor-pointer backdrop-blur-xs"
+        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-[#FDFBF7]/90 hover:bg-[#FDFBF7] text-[#8B5E3C] hover:text-[#704B2F] border border-[#E2DBD0] hover:scale-105 items-center justify-center shadow-md transition-all cursor-pointer backdrop-blur-xs"
         title="Rolar para esquerda"
       >
         <ChevronLeft className="w-6 h-6" />
@@ -318,11 +381,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       <button
         onClick={() => handleScrollStep('right')}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-[#FDFBF7]/90 hover:bg-[#FDFBF7] text-[#8B5E3C] hover:text-[#704B2F] border border-[#E2DBD0] hover:scale-105 flex items-center justify-center shadow-md transition-all cursor-pointer backdrop-blur-xs"
+        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-[#FDFBF7]/90 hover:bg-[#FDFBF7] text-[#8B5E3C] hover:text-[#704B2F] border border-[#E2DBD0] hover:scale-105 items-center justify-center shadow-md transition-all cursor-pointer backdrop-blur-xs"
         title="Rolar para direita"
       >
         <ChevronRight className="w-6 h-6" />
       </button>
+
     </div>
   );
 };

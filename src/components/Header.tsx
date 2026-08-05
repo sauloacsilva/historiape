@@ -53,48 +53,48 @@ export const Header: React.FC<HeaderProps> = ({
 
   const matchingEvents = query
     ? TIMELINE_EVENTS.filter(
-        (evt) =>
-          evt.title.toLowerCase().includes(query) ||
-          evt.summary.toLowerCase().includes(query) ||
-          evt.year.toString().includes(query) ||
-          evt.keyFigures.some((f) => f.toLowerCase().includes(query)) ||
-          evt.keywords.some((k) => k.toLowerCase().includes(query)) ||
-          evt.detailedContext.toLowerCase().includes(query)
-      )
+      (evt) =>
+        evt.title.toLowerCase().includes(query) ||
+        evt.summary.toLowerCase().includes(query) ||
+        evt.year.toString().includes(query) ||
+        evt.keyFigures.some((f) => f.toLowerCase().includes(query)) ||
+        evt.keywords.some((k) => k.toLowerCase().includes(query)) ||
+        evt.detailedContext.toLowerCase().includes(query)
+    )
     : [];
 
   const matchingArticles = query
     ? ARTICLES_DATA.filter(
-        (art) =>
-          art.title.toLowerCase().includes(query) ||
-          art.subtitle.toLowerCase().includes(query) ||
-          art.period.toLowerCase().includes(query) ||
-          art.century.toLowerCase().includes(query) ||
-          art.keywords.some((k) => k.toLowerCase().includes(query)) ||
-          art.personalidadesEEventos.some(
-            (p) => p.name.toLowerCase().includes(query) || p.bio.toLowerCase().includes(query)
-          )
-      )
+      (art) =>
+        art.title.toLowerCase().includes(query) ||
+        art.subtitle.toLowerCase().includes(query) ||
+        art.period.toLowerCase().includes(query) ||
+        art.century.toLowerCase().includes(query) ||
+        art.keywords.some((k) => k.toLowerCase().includes(query)) ||
+        art.personalidadesEEventos.some(
+          (p) => p.name.toLowerCase().includes(query) || p.bio.toLowerCase().includes(query)
+        )
+    )
     : [];
 
   const matchingRegions = query
     ? REGIONS_DATA.filter(
-        (reg) =>
-          reg.name.toLowerCase().includes(query) ||
-          reg.subTitle.toLowerCase().includes(query) ||
-          reg.cities.some((c) => c.toLowerCase().includes(query)) ||
-          reg.historicalRole.toLowerCase().includes(query) ||
-          reg.culturalHighlights.some((ch) => ch.toLowerCase().includes(query))
-      )
+      (reg) =>
+        reg.name.toLowerCase().includes(query) ||
+        reg.subTitle.toLowerCase().includes(query) ||
+        reg.cities.some((c) => c.toLowerCase().includes(query)) ||
+        reg.historicalRole.toLowerCase().includes(query) ||
+        reg.culturalHighlights.some((ch) => ch.toLowerCase().includes(query))
+    )
     : [];
 
   const matchingKeywords = query
     ? Object.values(KEYWORDS_DICTIONARY).filter(
-        (kw) =>
-          kw.term.toLowerCase().includes(query) ||
-          kw.definition.toLowerCase().includes(query) ||
-          kw.category.toLowerCase().includes(query)
-      )
+      (kw) =>
+        kw.term.toLowerCase().includes(query) ||
+        kw.definition.toLowerCase().includes(query) ||
+        kw.category.toLowerCase().includes(query)
+    )
     : [];
 
   const totalResultsCount =
@@ -123,40 +123,39 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#FDFBF7]/95 backdrop-blur-md border-b border-[#E8E1D7] shadow-xs">
-      {/* Top Banner */}
-      <div className="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 bg-[#FDFBF7]/95 backdrop-blur-md border-b border-[#E8E1D7] shadow-xs">      {/* Top Banner */}
+      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-2 md:gap-3 flex-wrap sm:flex-nowrap">
         {/* Brand */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('map')}>
-          <div className="w-10 h-10 rounded-xl bg-[#E2ECE0] border border-[#C5D8C1] flex items-center justify-center text-[#2D5A27] shadow-xs">
-            <Map className="w-5 h-5" />
+        <div className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none" onClick={() => setActiveTab('map')}>
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#E2ECE0] border border-[#C5D8C1] flex items-center justify-center text-[#2D5A27] shadow-xs shrink-0">
+            <Map className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-[#2C3531] leading-tight tracking-tight">
-              Pernambuco <span className="text-[#8B5E3C] font-normal">| Atlas Histórico Interativo</span>
+          <div className="min-w-0">
+            <h1 className="text-sm sm:text-base md:text-lg font-extrabold text-[#2C3531] leading-tight tracking-tight">
+              Pernambuco <span className="text-[#8B5E3C] font-normal">| Atlas Histórico</span>
             </h1>
-            <p className="text-xs text-[#6B7280]">
+            <p className="text-[10px] sm:text-xs text-[#6B7280] truncate hidden sm:block">
               Educação Básica • Economia, Sociedade, Etnia, Política, Cultura e Logística
             </p>
           </div>
         </div>
 
         {/* Search & Utility Action Buttons */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
           {/* Global Search Input with Live Dropdown */}
           <div className="relative" ref={searchRef}>
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C857B]" />
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C857B]" />
               <input
                 type="text"
-                placeholder="Buscar personalidades, eventos, datas..."
+                placeholder="Buscar no atlas..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setIsSearchOpen(true);
                 }}
                 onFocus={() => setIsSearchOpen(true)}
-                className="pl-9 pr-8 py-1.5 text-xs rounded-full bg-[#F3EFE6] border border-[#E2DBD0] text-[#2C3531] focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/40 w-52 sm:w-72 transition-all font-medium"
+                className="pl-8 pr-8 py-1.5 text-xs rounded-full bg-[#F3EFE6] border border-[#E2DBD0] text-[#2C3531] focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/40 w-32 xs:w-44 sm:w-56 md:w-72 transition-all font-medium"
               />
               {searchQuery && (
                 <button
@@ -166,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
                   }}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-[#E2DBD0] text-[#8C857B] cursor-pointer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3 h-3" />
                 </button>
               )}
             </div>
@@ -353,11 +352,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setSelectedDimension('all');
                   setIsMobileMenuOpen(false);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  selectedDimension === 'all'
-                    ? 'bg-[#2C3531] text-white font-bold'
-                    : 'bg-[#F3EFE6] text-[#5C5549] hover:bg-[#E2DBD0]'
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${selectedDimension === 'all'
+                  ? 'bg-[#2C3531] text-white font-bold'
+                  : 'bg-[#F3EFE6] text-[#5C5549] hover:bg-[#E2DBD0]'
+                  }`}
               >
                 Todas as Dimensões
               </button>
@@ -392,11 +390,10 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-1">
           <button
             onClick={() => setActiveTab('map')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'map'
-                ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
-                : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === 'map'
+              ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
+              : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
+              }`}
           >
             <Map className="w-4 h-4" />
             <span>Mapa Interativo</span>
@@ -404,11 +401,10 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveTab('timeline')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'timeline'
-                ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
-                : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === 'timeline'
+              ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
+              : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
+              }`}
           >
             <Clock className="w-4 h-4" />
             <span>Linha do Tempo</span>
@@ -416,11 +412,10 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveTab('articles')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'articles'
-                ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
-                : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === 'articles'
+              ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
+              : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
+              }`}
           >
             <BookOpen className="w-4 h-4" />
             <span>Artigos</span>
@@ -428,11 +423,10 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveTab('keywords')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'keywords'
-                ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
-                : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === 'keywords'
+              ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
+              : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
+              }`}
           >
             <Hash className="w-4 h-4" />
             <span>Palavras-Chave</span>
@@ -440,11 +434,10 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveTab('quiz')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'quiz'
-                ? 'bg-[#2D5A27] text-white shadow-xs font-semibold'
-                : 'text-[#5C5549] hover:bg-[#E2ECE0] hover:text-[#2D5A27]'
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === 'quiz'
+              ? 'bg-[#2D5A27] text-white shadow-xs font-semibold'
+              : 'text-[#5C5549] hover:bg-[#E2ECE0] hover:text-[#2D5A27]'
+              }`}
           >
             <Award className="w-4 h-4 text-[#F59E0B]" />
             <span>Desafio/Quiz</span>
@@ -452,17 +445,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Dimension Filter Quick Chips */}
-        <div className="flex items-center gap-1 pl-4 border-l border-[#EFEADF]">
-          <span className="text-[10px] uppercase tracking-wider text-[#8C857B] font-semibold mr-1">
+        <div className="flex items-center gap-1 pl-4 border-l border-[#EFEADF] overflow-x-auto no-scrollbar">
+          <span className="text-[10px] uppercase tracking-wider text-[#8C857B] font-semibold mr-1 shrink-0">
             Dimensão:
           </span>
           <button
             onClick={() => setSelectedDimension('all')}
-            className={`px-2 py-0.5 rounded text-[11px] font-medium transition-all cursor-pointer ${
-              selectedDimension === 'all'
-                ? 'bg-[#2C3531] text-white font-bold'
-                : 'bg-[#F3EFE6] text-[#5C5549] hover:bg-[#E2DBD0]'
-            }`}
+            className={`px-2 py-0.5 rounded text-[11px] font-medium transition-all cursor-pointer shrink-0 ${selectedDimension === 'all'
+              ? 'bg-[#2C3531] text-white font-bold'
+              : 'bg-[#F3EFE6] text-[#5C5549] hover:bg-[#E2DBD0]'
+              }`}
           >
             Todas
           </button>
@@ -478,7 +470,7 @@ export const Header: React.FC<HeaderProps> = ({
                   backgroundColor: isSelected ? dim.color : dim.pastelBg,
                   color: isSelected ? '#FFFFFF' : dim.pastelText,
                 }}
-                className="px-2 py-0.5 rounded text-[11px] font-semibold transition-all cursor-pointer shadow-2xs hover:opacity-90"
+                className="px-2 py-0.5 rounded text-[11px] font-semibold transition-all cursor-pointer shadow-2xs hover:opacity-90 shrink-0"
               >
                 {dim.label}
               </button>
@@ -486,58 +478,28 @@ export const Header: React.FC<HeaderProps> = ({
           })}
         </div>
       </div>
-
       {/* Bottom Navigation for Mobile Devices */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#E8E1D7] flex lg:hidden items-center justify-around py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-        <button
-          onClick={() => setActiveTab('map')}
-          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
-            activeTab === 'map' ? 'text-[#8B5E3C]' : 'text-[#8C857B] hover:text-[#2C3531]'
-          }`}
-        >
-          <Map className="w-5 h-5" />
-          <span>Mapa</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('timeline')}
-          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
-            activeTab === 'timeline' ? 'text-[#8B5E3C]' : 'text-[#8C857B] hover:text-[#2C3531]'
-          }`}
-        >
-          <Clock className="w-5 h-5" />
-          <span>Linha</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('articles')}
-          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
-            activeTab === 'articles' ? 'text-[#8B5E3C]' : 'text-[#8C857B] hover:text-[#2C3531]'
-          }`}
-        >
-          <BookOpen className="w-5 h-5" />
-          <span>Artigos</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('keywords')}
-          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
-            activeTab === 'keywords' ? 'text-[#8B5E3C]' : 'text-[#8C857B] hover:text-[#2C3531]'
-          }`}
-        >
-          <Hash className="w-5 h-5" />
-          <span>Termos</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('quiz')}
-          className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-all cursor-pointer ${
-            activeTab === 'quiz' ? 'text-[#2D5A27]' : 'text-[#8C857B] hover:text-[#2C3531]'
-          }`}
-        >
-          <Award className={`w-5 h-5 ${activeTab === 'quiz' ? 'text-[#F59E0B]' : ''}`} />
-          <span>Desafio</span>
-        </button>
+      <div className="w-full bg-[#FDFBF7]/97 border-t border-[#E8E1D7] flex lg:hidden items-center justify-around py-3 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        {[
+          { tab: 'map' as const, icon: <Map className="w-5 h-5" />, label: 'Mapa', activeColor: 'text-[#8B5E3C]' },
+          { tab: 'timeline' as const, icon: <Clock className="w-5 h-5" />, label: 'Linha', activeColor: 'text-[#8B5E3C]' },
+          { tab: 'articles' as const, icon: <BookOpen className="w-5 h-5" />, label: 'Artigos', activeColor: 'text-[#8B5E3C]' },
+          { tab: 'keywords' as const, icon: <Hash className="w-5 h-5" />, label: 'Termos', activeColor: 'text-[#8B5E3C]' },
+          { tab: 'quiz' as const, icon: <Award className={`w-5 h-5 ${activeTab === 'quiz' ? 'text-[#F59E0B]' : ''}`} />, label: 'Desafio', activeColor: 'text-[#2D5A27]' },
+        ].map(({ tab, icon, label, activeColor }) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-[10px] font-bold transition-all cursor-pointer relative ${activeTab === tab ? activeColor : 'text-[#8C857B] hover:text-[#2C3531]'
+              }`}
+          >
+            {icon}
+            <span>{label}</span>
+            {activeTab === tab && (
+              <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-current" />
+            )}
+          </button>
+        ))}
       </div>
     </header>
   );
