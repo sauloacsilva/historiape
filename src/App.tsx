@@ -6,6 +6,7 @@ import { ArticleView } from './components/ArticleView';
 import { TimelineView } from './components/TimelineView';
 import { HypertextIndex } from './components/HypertextIndex';
 import { QuizSection } from './components/QuizSection';
+import { PersonalitiesView } from './components/PersonalitiesView';
 import { KeywordTooltipModal } from './components/KeywordTooltipModal';
 import { StudyGuideModal } from './components/StudyGuideModal';
 
@@ -16,7 +17,7 @@ import { KEYWORDS_DICTIONARY } from './data/keywordsData';
 import { DIMENSIONS } from './data/dimensionsData';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'map' | 'timeline' | 'articles' | 'keywords' | 'quiz'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'timeline' | 'articles' | 'keywords' | 'quiz' | 'personalities'>('map');
   const [selectedDimension, setSelectedDimension] = useState<DimensionType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -203,6 +204,11 @@ export default function App() {
 
         {/* VIEW 5: Quiz Section */}
         {activeTab === 'quiz' && <QuizSection />}
+
+        {/* VIEW 6: Personalities Gallery */}
+        {activeTab === 'personalities' && (
+          <PersonalitiesView initialSearchQuery={searchQuery} />
+        )}
       </main>
 
       {/* Region Details Drawer */}

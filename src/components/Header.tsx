@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Map, Clock, BookOpen, Hash, Award, Search, FileText, X, ChevronRight, MapPin, Tag, AlertCircle, Menu, SlidersHorizontal } from 'lucide-react';
-import { DimensionType, Region, Article, TimelineEvent, Keyword } from '../types';
+import { Map, Clock, BookOpen, Hash, Award, Search, FileText, X, ChevronRight, MapPin, Tag, AlertCircle, Menu, SlidersHorizontal, Users } from 'lucide-react';
+import { DimensionType, Region, Article, TimelineEvent, Keyword, GalleryPersonality } from '../types';
 import { DIMENSIONS } from '../data/dimensionsData';
 import { TIMELINE_EVENTS } from '../data/timelineEventsData';
 import { ARTICLES_DATA } from '../data/articlesData';
 import { REGIONS_DATA } from '../data/regionsData';
 import { KEYWORDS_DICTIONARY } from '../data/keywordsData';
+import { PERSONALITIES_DATA } from '../data/personalitiesData';
 
 interface HeaderProps {
-  activeTab: 'map' | 'timeline' | 'articles' | 'keywords' | 'quiz';
-  setActiveTab: (tab: 'map' | 'timeline' | 'articles' | 'keywords' | 'quiz') => void;
+  activeTab: 'map' | 'timeline' | 'articles' | 'keywords' | 'quiz' | 'personalities';
+  setActiveTab: (tab: 'map' | 'timeline' | 'articles' | 'keywords' | 'quiz' | 'personalities') => void;
   selectedDimension: DimensionType | 'all';
   setSelectedDimension: (dim: DimensionType | 'all') => void;
   searchQuery: string;
@@ -19,6 +20,7 @@ interface HeaderProps {
   onSelectArticle: (article: Article) => void;
   onSelectRegion: (region: Region) => void;
   onSelectKeyword: (keywordTerm: string) => void;
+  onSelectPersonality?: (personality: GalleryPersonality) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -97,8 +99,18 @@ export const Header: React.FC<HeaderProps> = ({
     )
     : [];
 
+  const matchingPersonalities = query
+    ? PERSONALITIES_DATA.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        p.profile.toLowerCase().includes(query) ||
+        p.region.toLowerCase().includes(query) ||
+        p.highlights.some((h) => h.toLowerCase().includes(query))
+    )
+    : [];
+
   const totalResultsCount =
-    matchingEvents.length + matchingArticles.length + matchingRegions.length + matchingKeywords.length;
+    matchingEvents.length + matchingArticles.length + matchingRegions.length + matchingKeywords.length + matchingPersonalities.length;
 
   const handleSelectEventItem = (evt: TimelineEvent) => {
     onSelectEvent(evt);
@@ -119,6 +131,11 @@ export const Header: React.FC<HeaderProps> = ({
 
   const handleSelectKeywordItem = (term: string) => {
     onSelectKeyword(term);
+    setIsSearchOpen(false);
+  };
+
+  const handleSelectPersonalityItem = () => {
+    setActiveTab('personalities');
     setIsSearchOpen(false);
   };
 
@@ -313,6 +330,36 @@ export const Header: React.FC<HeaderProps> = ({
                     </div>
                   </div>
                 )}
+
+                {/* Personalities Section */}
+                {matchingPersonalities.length > 0 && (
+                  <div className="pt-2">
+                    <span className="text-[10px] font-bold text-[#8C857B] uppercase block px-1 mb-1.5 flex items-center gap-1">
+                      <Users className="w-3 h-3 text-[#8B5E3C]" />
+                      <span>Personalidades ({matchingPersonalities.length})</span>
+                    </span>
+                    <div className="space-y-1">
+                      {matchingPersonalities.slice(0, 4).map((p) => (
+                        <div
+                          key={p.id}
+                          onClick={handleSelectPersonalityItem}
+                          className="p-2 rounded-xl hover:bg-[#F3EFE6] transition-all cursor-pointer flex items-start justify-between gap-2 group"
+                        >
+                          <div>
+                            <span className="text-[10px] font-bold text-[#92400E] bg-[#FEF3C7] px-1.5 py-0.5 rounded mb-0.5 inline-block">
+                              {p.regionCategory}
+                            </span>
+                            <p className="text-xs font-bold text-[#2C3531] group-hover:text-[#8B5E3C]">
+                              {p.name}
+                            </p>
+                            <p className="text-[11px] text-[#6B7280] line-clamp-1">{p.profile}</p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[#8C857B] shrink-0 mt-1" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -339,10 +386,43 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Mobile Collapsible Panel for Dimension Filters */}
+      {/* Mobile Collapsible Panel for Navigation & Dimension Filters */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden px-4 pb-3 pt-2 border-t border-[#EFEADF] bg-[#FDFBF7] animate-fade-in space-y-2">
-          <div className="flex flex-col gap-2">
+        <div className="lg:hidden px-4 pb-3 pt-2 border-t border-[#EFEADF] bg-[#FDFBF7] animate-fade-in space-y-3">
+          {/* Section Navigation Links */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] uppercase tracking-wider text-[#8C857B] font-bold block mb-0.5">
+              Navegar por Seção:
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {[
+                { tab: 'map' as const, icon: <Map className="w-3.5 h-3.5" />, label: 'Mapa Interativo' },
+                { tab: 'timeline' as const, icon: <Clock className="w-3.5 h-3.5" />, label: 'Linha do Tempo' },
+                { tab: 'articles' as const, icon: <BookOpen className="w-3.5 h-3.5" />, label: 'Artigos' },
+                { tab: 'personalities' as const, icon: <Users className="w-3.5 h-3.5" />, label: 'Personalidades' },
+                { tab: 'keywords' as const, icon: <Hash className="w-3.5 h-3.5" />, label: 'Palavras-Chave' },
+                { tab: 'quiz' as const, icon: <Award className="w-3.5 h-3.5 text-[#F59E0B]" />, label: 'Desafio/Quiz' },
+              ].map(({ tab, icon, label }) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    activeTab === tab
+                      ? 'bg-[#8B5E3C] text-white font-bold shadow-xs'
+                      : 'bg-[#F3EFE6] text-[#5C5549] hover:bg-[#E2DBD0]'
+                  }`}
+                >
+                  {icon}
+                  <span className="truncate">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 pt-2 border-t border-[#EFEADF]">
             <span className="text-[10px] uppercase tracking-wider text-[#8C857B] font-bold block mb-1">
               Filtrar por Dimensão:
             </span>
@@ -433,6 +513,17 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           <button
+            onClick={() => setActiveTab('personalities')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === 'personalities'
+              ? 'bg-[#8B5E3C] text-white shadow-xs font-semibold'
+              : 'text-[#5C5549] hover:bg-[#EFEADF] hover:text-[#2C3531]'
+              }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Personalidades</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('quiz')}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === 'quiz'
               ? 'bg-[#2D5A27] text-white shadow-xs font-semibold'
@@ -484,6 +575,7 @@ export const Header: React.FC<HeaderProps> = ({
           { tab: 'map' as const, icon: <Map className="w-5 h-5" />, label: 'Mapa', activeColor: 'text-[#8B5E3C]' },
           { tab: 'timeline' as const, icon: <Clock className="w-5 h-5" />, label: 'Linha', activeColor: 'text-[#8B5E3C]' },
           { tab: 'articles' as const, icon: <BookOpen className="w-5 h-5" />, label: 'Artigos', activeColor: 'text-[#8B5E3C]' },
+          { tab: 'personalities' as const, icon: <Users className="w-5 h-5" />, label: 'Figuras', activeColor: 'text-[#8B5E3C]' },
           { tab: 'keywords' as const, icon: <Hash className="w-5 h-5" />, label: 'Termos', activeColor: 'text-[#8B5E3C]' },
           { tab: 'quiz' as const, icon: <Award className={`w-5 h-5 ${activeTab === 'quiz' ? 'text-[#F59E0B]' : ''}`} />, label: 'Desafio', activeColor: 'text-[#2D5A27]' },
         ].map(({ tab, icon, label, activeColor }) => (

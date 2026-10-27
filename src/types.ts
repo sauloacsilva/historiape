@@ -119,3 +119,17 @@ export interface QuizQuestion {
   dimension: DimensionType;
   relatedYear?: number;
 }
+
+export interface GalleryPersonality {
+  id: string;
+  name: string;
+  profile: string;
+  region: string;
+  regionCategory: 'Sertão' | 'Agreste' | 'Zona da Mata / RMR';
+  category: 'Lideranças, História e Política' | 'Música e Cultura Popular' | 'Artes Plásticas, Cerâmica e Design' | 'Literatura, Poesia, Educação e Ciências';
+  photo: string;
+  actuation: string;
+  highlights: string[];
+  references?: { label: string; url: string }[];
+}
+
