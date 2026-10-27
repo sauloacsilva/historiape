@@ -7,6 +7,23 @@ interface PersonalitiesViewProps {
   initialSearchQuery?: string;
 }
 
+const localImages = import.meta.glob<{ default: string }>('../img/personalidades/*.{jpg,jpeg,png,webp}', { eager: true });
+
+export const getPersonalityPhotoUrl = (photoPath: string): string => {
+  if (!photoPath) return '';
+  if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
+    return photoPath;
+  }
+  const filename = photoPath.split('/').pop() || '';
+  const bundleKey = `../img/personalidades/${filename}`;
+  if (localImages[bundleKey]?.default) {
+    return localImages[bundleKey].default;
+  }
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const prefix = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  return `${prefix}img/personalidades/${filename}`;
+};
+
 export const PersonalitiesView: React.FC<PersonalitiesViewProps> = ({
   initialSearchQuery = '',
 }) => {
@@ -231,7 +248,7 @@ export const PersonalitiesView: React.FC<PersonalitiesViewProps> = ({
                     <div className="relative shrink-0">
                       {!hasError ? (
                         <img
-                          src={p.photo}
+                          src={getPersonalityPhotoUrl(p.photo)}
                           alt={p.name}
                           onError={() => handleImageError(p.id)}
                           className="w-16 h-16 rounded-2xl object-cover border border-[#E2DBD0] shadow-xs bg-[#F3EFE6]"
@@ -334,7 +351,7 @@ export const PersonalitiesView: React.FC<PersonalitiesViewProps> = ({
               <div className="relative shrink-0">
                 {!imageErrors[activeModalItem.id] ? (
                   <img
-                    src={activeModalItem.photo}
+                    src={getPersonalityPhotoUrl(activeModalItem.photo)}
                     alt={activeModalItem.name}
                     onError={() => handleImageError(activeModalItem.id)}
                     className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-[#E2DBD0] shadow-sm bg-[#F3EFE6]"
