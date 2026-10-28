@@ -776,7 +776,7 @@ export const PERSONALITIES_DATA: GalleryPersonality[] = [
         highlights: ['Três Vezes Governador de PE', 'Criador do Chapéu de Palha', 'Símbolo da Resistência Democrática'],
         references: [
             { label: 'Wikipedia — Miguel Arraes', url: 'https://pt.wikipedia.org/wiki/Miguel_Arraes' },
-            { label: 'Fundação Miguel Arraes', url: 'http://www.fundacaomiguelarraes.org.br/' }
+            { label: 'Câmara dos Deputados', url: 'https://www2.camara.leg.br/atividade-legislativa/plenario/discursos/escrevendohistoria/discursos-em-destaque/serie-brasileira/decada-1980-89/biografia-miguel-arraes' }
         ]
     },
     {
